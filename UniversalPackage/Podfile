@@ -1,0 +1,13 @@
+# Uncomment the next line to define a global platform for your project
+ platform :ios, '8.0'
+
+target 'UniversalPackage' do
+       pod 'IQKeyboardManager'
+       pod 'AFNetworking'
+       pod 'Masonry'
+       pod 'SDWebImage'
+       pod 'MBProgressHUD'
+       pod 'MJRefresh'
+       pod 'YYModel'
+       pod 'MoxieSDK-iOS','~>2.3.7'
+end
