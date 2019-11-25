@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HomeViewController.h"
 
 @interface Home_secondView : UIView
 @property(strong,nonatomic)UIImageView *imageView;
@@ -18,4 +19,5 @@
 @property(strong,nonatomic)Order *orderObj;
 @property(copy,nonatomic)NSString  *url;
 @property(copy,nonatomic)void(^selectBack)(NSString *url);
+
 @end

@@ -53,7 +53,7 @@ typedef void(^UtilsFailueBlock)(NSString * error);
                     utilsSuccess:(UtilsSuccessBlock)utilsSuccess
                        utilsFail:(UtilsFailueBlock)utilsFail;
 
-/** 发送验证码 sms_type 1001-注册   1002-修改密码
+/** 发送验证码 sms_type 001-注册   002-修改密码
  */
 
 - (void)sendMessageWithNetwork:(NSString *)phone
@@ -152,6 +152,23 @@ typedef void(^UtilsFailueBlock)(NSString * error);
                           utilsSuccess:(UtilsSuccessBlock)utilsSuccess
                              utilsFail:(UtilsFailueBlock)utilsFail;
 
+/**
+ 运营商校验
+ 
+ @param phoneNum 手机号
+ @param name 姓名
+ @param ID 身份证号
+ @param psw 密码
+ @param utilsSuccess 成功回调
+ @param utilsFail 失败回调
+ */
+- (void)carrierEnsureWithPhoneNum:(NSString *)phoneNum
+                             name:(NSString *)name
+                               ID:(NSString *)ID
+                              psw:(NSString *)psw
+                     utilsSuccess:(UtilsSuccessBlock)utilsSuccess
+                        utilsFail:(UtilsFailueBlock)utilsFail ;
+
 /** 获取个人实名信息
  */
 -(void)getPersonalRealInfoWithUtilsSuccess:(UtilsSuccessBlock)utilsSuccess
@@ -186,6 +203,13 @@ typedef void(^UtilsFailueBlock)(NSString * error);
  */
 - (void)getorderHomeWithUtilsSuccess:(UtilsSuccessBlock)utilsSuccess
                                   utilsFail:(UtilsFailueBlock)utilsFail ;
+
+
+/**
+ 获取用户认证状态
+ */
+- (void)getUserStatusWithUtilsSuccess:(UtilsSuccessBlock)utilsSuccess
+                            utilsFail:(UtilsFailueBlock)utilsFail ;
 @end
 
 

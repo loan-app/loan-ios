@@ -36,22 +36,18 @@ static NSString *jumpUrl;
         make.height.mas_equalTo(20);
     }];
     [self.moneyLab mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.positionLab.mas_bottom).offset(30);
+        make.top.equalTo(self.positionLab.mas_bottom).offset(12);
         make.left.mas_equalTo(0);
         make.width.mas_equalTo(kWidth);
         make.height.mas_equalTo(42);
     }];
-    [self.scriptionLab mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.moneyLab.mas_bottom).offset(25);
-        make.left.mas_equalTo(0);
-        make.width.mas_equalTo(kWidth);
-        make.height.mas_equalTo(12);
-    }];
     [self.confirmBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.topView.mas_bottom).offset(-20);
-        make.width.height.mas_equalTo(100);
+        make.top.equalTo(self.moneyLab.mas_bottom).offset(20);
+        make.height.mas_equalTo(36);
+        make.leading.mas_equalTo(22);
+        make.trailing.mas_equalTo(-22);
         make.centerX.equalTo(self.mas_centerX);
-        self.confirmBtn.layer.cornerRadius = 50;
+        self.confirmBtn.layer.cornerRadius = 2;
     }];
     [self.buttomLab mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.confirmBtn.mas_bottom).offset(55);
@@ -63,20 +59,20 @@ static NSString *jumpUrl;
 -(UIView *)topView{
     if (!_topView) {
         _topView = [[UIView alloc]init];
-        [self test];
+        //[self test];
 
         _topView.backgroundColor =kWhiteColor;
         [_topView addSubview:self.positionLab];
         [_topView addSubview:self.moneyLab];
-        [_topView addSubview:self.scriptionLab];
     }
     return _topView;
 }
 -(UILabel *)positionLab{
     if (!_positionLab) {
         _positionLab = [[UILabel alloc]init];
-        _positionLab.font = Font(14);
-        _positionLab.text = @"可借额度(元)";
+        _positionLab.font = Font(16);
+        //_positionLab.text = @"可借额度(元)";
+        _positionLab.text = @"小熊钱包";
         _positionLab.textAlignment = NSTextAlignmentCenter;
     }
     return _positionLab;
@@ -84,26 +80,19 @@ static NSString *jumpUrl;
 -(UILabel *)moneyLab{
     if (!_moneyLab) {
         _moneyLab = [[UILabel alloc]init];
-        _moneyLab.font = Font(42);
+        _moneyLab.font = Font(28);
+        _moneyLab.textColor = [UIColor colorWithHexString:@"#FF9800"];
         _moneyLab.textAlignment = NSTextAlignmentCenter;
-        _moneyLab.text = @"1000~5000";
+        _moneyLab.text = @"200~2w";
     }
     return _moneyLab;
-}
--(UILabel *)scriptionLab{
-    if (!_scriptionLab) {
-        _scriptionLab = [[UILabel alloc]init];
-        _scriptionLab.font = Font(12);
-        _scriptionLab.text = @"填写身份资料即可借款";
-        _scriptionLab.textAlignment = NSTextAlignmentCenter;
-    }
-    return _scriptionLab;
 }
 -(UIButton *)confirmBtn{
     if (!_confirmBtn) {
         _confirmBtn = [[UIButton alloc]init];
-        [_confirmBtn setTitle:@"立即借款" forState:UIControlStateNormal];
+        [_confirmBtn setTitle:@"立即申请" forState:UIControlStateNormal];
         [_confirmBtn setTitleColor:kWhiteColor forState:UIControlStateNormal];
+        _confirmBtn.titleLabel.font = [UIFont systemFontOfSize:14];
         [_confirmBtn addTarget:self action:@selector(confirmClick) forControlEvents:UIControlEventTouchUpInside];
         _confirmBtn.backgroundColor =k595Color;
     }
@@ -112,10 +101,10 @@ static NSString *jumpUrl;
 -(UILabel *)buttomLab{
     if (!_buttomLab) {
         _buttomLab = [[UILabel alloc]init];
-        _buttomLab.textAlignment = NSTextAlignmentCenter;
-        _buttomLab.text = @"本平台不向学生提供借款服务";
-        _buttomLab.font = Font(12);
-        _buttomLab.textColor = K999Color;
+//        _buttomLab.textAlignment = NSTextAlignmentCenter;
+//        _buttomLab.text = @"本平台不向学生提供借款服务";
+//        _buttomLab.font = Font(12);
+//        _buttomLab.textColor = K999Color;
     }
     return _buttomLab;
 }
@@ -126,8 +115,8 @@ static NSString *jumpUrl;
 }
 
 -(void)setDataDic:(NSDictionary *)dataDic{
+    _positionLab.text = dataDic[@"descTop"];
     _moneyLab.text =  [NSString stringWithFormat:@"%@",[dataDic objectForKey:@"amount"]] ;
-    _scriptionLab.text = [dataDic objectForKey:@"descTop"];
     [_confirmBtn setTitle:[dataDic objectForKey:@"descMid"] forState:UIControlStateNormal];
     jumpUrl = [dataDic objectForKey:@"url"];
 }

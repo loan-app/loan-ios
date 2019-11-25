@@ -8,6 +8,8 @@
 #import "FaceViewController.h"
 #import "CameraViewController.h"
 #import <AVFoundation/AVFoundation.h>
+#import "CarrierEnsureViewController.h"
+
 @interface FaceViewController ()<CameraDelegate>
 @property(strong,nonatomic)UIView *photoBackView;
 @property(strong,nonatomic)UIView *lineView;
@@ -24,6 +26,10 @@
     [self setupUI];
     [self initData];
     // Do any additional setup after loading the view.
+    kWeakSelf(self);
+    self.BaseNavgationBar.leftClickBack = ^{
+        [weakself.navigationController popToRootViewControllerAnimated:YES];
+    };
 }
 -(void)initData{
     kWeakSelf(self);
@@ -113,10 +119,12 @@
         if ([BaseTool  responseWithNetworkDealResponse:response]) {
             self.photoImage.image = [UIImage scaleImage:[UIImage fixOrientation:image] toKb:100];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self.navigationController popViewControllerAnimated:YES];
+                //[self.navigationController popViewControllerAnimated:YES];
+                CarrierEnsureViewController *carrierEnsureVC = [CarrierEnsureViewController new];
+                [self.navigationController pushViewController:carrierEnsureVC animated:YES];
             });
         }else{
-            [MBProgressHUD bnt_showMessage:response[@"message"] delay:2];
+            [MBProgressHUD bnt_showMessage:response[kMessageStr] delay:2];
         }
     } utilsFail:^(NSString *error) {
         NSLog(@"%@",error);

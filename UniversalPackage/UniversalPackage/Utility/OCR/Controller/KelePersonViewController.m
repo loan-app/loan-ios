@@ -16,6 +16,8 @@
 #import "ContactViewController.h"//通讯录
 #import "PPGetAddressBook.h"
 #import "FooterBankView.h"
+#import "FaceViewController.h"
+
 static NSString * kPersonMessageTableCell = @"kPersonMessageTableCell";
 static NSString * kPersonAreaTableCell = @"kPersonMessageTableCell";
 static NSString * kPersonAreaTimeTableCell = @"kPersonMessageTableCell";
@@ -93,7 +95,12 @@ static NSString * kUrgencyQitaCell = @"kUrgencyTableCell";
 }
 -(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
+    kWeakSelf(self);
+    self.BaseNavgationBar.leftClickBack = ^{
+        [weakself.navigationController popToRootViewControllerAnimated:YES];
+    };
 }
+
 #pragma mark - setupNav
 - (void)setupNav {
     self.BaseNavgationBar.title = @"个人信息";
@@ -577,7 +584,10 @@ static NSString * kUrgencyQitaCell = @"kUrgencyTableCell";
         [MBProgressHUD hideHUDView:weakself.view];
         if ([BaseTool responseWithNetworkDealResponse:response]) {
             [MBProgressHUD bnt_showMessage:@"提交成功" delay:kMubDelayTime];
-            [weakself.navigationController popViewControllerAnimated:YES];
+            //[weakself.navigationController popViewControllerAnimated:YES];
+            FaceViewController *faceVC = [FaceViewController new];
+            [weakself.navigationController pushViewController:faceVC animated:YES];
+            
         }else {
             [MBProgressHUD bnt_showMessage:response[kMessageStr] delay:kMubDelayTime];
         }

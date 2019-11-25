@@ -8,10 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+
 @interface Home_firstView : UIView
 @property(strong,nonatomic)UILabel *positionLab;
 @property(strong,nonatomic)UILabel *moneyLab;
-@property(strong,nonatomic)UILabel *scriptionLab;
 @property(strong,nonatomic)UIView  *topView;
 @property(strong,nonatomic)UILabel *buttomLab;
 @property(strong,nonatomic)UIButton *confirmBtn;

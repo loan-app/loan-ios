@@ -110,7 +110,7 @@ static NetworkUtils * netTool = nil;
     }];
 }
 
-/** 发送验证码 sms_type 1001-注册   1002-修改密码
+/** 发送验证码 sms_type 001-注册   002-修改密码
  */
 
 - (void)sendMessageWithNetwork:(NSString *)phone
@@ -350,6 +350,27 @@ static NetworkUtils * netTool = nil;
     }];
 }
 
+- (void)carrierEnsureWithPhoneNum:(NSString *)phoneNum
+                             name:(NSString *)name
+                               ID:(NSString *)ID
+                              psw:(NSString *)psw
+                     utilsSuccess:(UtilsSuccessBlock)utilsSuccess
+                        utilsFail:(UtilsFailueBlock)utilsFail {
+    NSMutableDictionary *paras = [NSMutableDictionary dictionary];
+    [paras setObject:phoneNum forKey:@"mobile"];
+    [paras setObject:name forKey:@"identityName"];
+    [paras setObject:ID forKey:@"identityNo"];
+    [paras setObject:psw forKey:@"password"];
+    NSString *url = [NSString stringWithFormat:@"%@%@",kHTTPUrl, kMobileAuth];
+    [[NetworkManager sharedInstance] postJsonData:paras
+                                              url:url
+                                     successBlock:^(id responseBody) {
+                                         utilsSuccess(responseBody);
+                                     } failureBlock:^(NSString *error) {
+                                         utilsFail(error);
+                                     }];
+}
+
 /** 获取个人实名信息
  */
 -(void)getPersonalRealInfoWithUtilsSuccess:(UtilsSuccessBlock)utilsSuccess
@@ -442,6 +463,17 @@ static NetworkUtils * netTool = nil;
                            utilsFail:(UtilsFailueBlock)utilsFail{
     NSMutableDictionary * dic = [NSMutableDictionary dictionary];
     NSString * url = [NSString stringWithFormat:@"%@%@", kHTTPUrl, korderHomeUrl];
+    [[NetworkManager sharedInstance] postJsonData:dic url:url successBlock:^(id responseBody) {
+        utilsSuccess(responseBody);
+    } failureBlock:^(NSString *error) {
+        utilsFail(error);
+    }];
+}
+
+- (void)getUserStatusWithUtilsSuccess:(UtilsSuccessBlock)utilsSuccess
+                            utilsFail:(UtilsFailueBlock)utilsFail {
+    NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+    NSString * url = [NSString stringWithFormat:@"%@%@", kHTTPUrl, kUserStatus];
     [[NetworkManager sharedInstance] postJsonData:dic url:url successBlock:^(id responseBody) {
         utilsSuccess(responseBody);
     } failureBlock:^(NSString *error) {

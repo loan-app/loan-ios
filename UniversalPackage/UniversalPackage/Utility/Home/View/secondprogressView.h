@@ -8,6 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol SecondProgressViewDelegate <NSObject>
+
+@optional
+- (void)orderDetail:(Order *)order;
+
+@end
+
 @interface secondprogressView : UIView<UITableViewDelegate,UITableViewDataSource>
 @property(strong,nonatomic)NSArray *titleArr;
 @property(strong,nonatomic)NSArray *detailArr;
@@ -16,4 +23,7 @@
 @property(strong,nonatomic)UIButton *confirmBtn;
 @property(copy,nonatomic)void(^repayBack)(NSString *url);
 @property(strong,nonatomic)Order *orderObj;
+
+@property (nonatomic,assign) id <SecondProgressViewDelegate>delegate;
+
 @end

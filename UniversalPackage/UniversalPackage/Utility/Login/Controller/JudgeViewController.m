@@ -90,7 +90,7 @@
             }
             
         }else{
-            [MBProgressHUD bnt_showMessage:response[@"message"]];
+            [MBProgressHUD bnt_showMessage:response[kMessageStr]];
 
         }
     } utilsFail:^(NSString *error) {

@@ -11,19 +11,26 @@
 #import "AboutViewController.h"
 #import "MineHeadView.h"
 #import "MineCell.h"
-@interface MineViewController ()<HeadViewDelegate,UICollectionViewDelegate,UICollectionViewDataSource>
+#import "RealNameViewController.h"
+#import "FaceViewController.h"
+#import "KelePersonViewController.h"
+@interface MineViewController ()<HeadViewDelegate,UICollectionViewDelegate,UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource>
 @property(strong,nonatomic)MineHeadView *headView;
 @property(strong,nonatomic)NSArray *dataArr;
+@property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) UIView *footerView;
+@property (nonatomic, strong) UIButton *loginBtn;
 @end
 static NSString *mineCell = @"minecell";
 @implementation MineViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.BaseNavgationBar.hidden =YES;
+    self.BaseNavgationBar.title = @"我的";
     self.view.backgroundColor = kF5F5F5Color;
     [self setupUI];
     _dataArr = @[@[@"我的资料",@"查看资料"],@[@"借款记录",@"查看记录"],@[@"银行卡",@"查看银行卡"],@[@"帮助中心",@"查看帮助中心"],@[@"更多",@"查看更多"]];
+    self.dataArr = @[@"我的账单",@"我的银行卡",@"相关协议"];
     // Do any additional setup after loading the view.
 }
 -(void)viewWillAppear:(BOOL)animated{
@@ -38,19 +45,21 @@ static NSString *mineCell = @"minecell";
                 if ([BaseTool Imageisexit:response[@"data"][@"imgHead"]]) {
                     [self.headView.headImgView sd_setImageWithURL:response[@"data"][@"imgHead"]];
                 }
-                self.headView.phoneLab.text = response[@"data"][@"userPhone"];
+                //self.headView.phoneLab.text = response[@"data"][@"userPhone"];
+                [self.loginBtn setTitle:@"退出登录" forState:normal];
             }
         } utilsFail:^(NSString *error) {
         }];
     }else{
-        self.headView.phoneLab.text = @"点击登录";
-        
+        //self.headView.phoneLab.text = @"点击登录";
+        [self.loginBtn setTitle:@"立即登录" forState:normal];
     }
     
 }
 -(void)setupUI{
-    [self.view addSubview:self.headView];
-    [self.view addSubview:self.collectionView];
+    //[self.view addSubview:self.headView];
+    //[self.view addSubview:self.collectionView];
+    [self.view addSubview:self.tableView];
 }
 -(MineHeadView *)headView{
     if (!_headView) {
@@ -69,6 +78,139 @@ static NSString *mineCell = @"minecell";
         [self.navigationController pushViewController:loginVC animated:YES];
     }
 }
+
+- (UITableView *)tableView {
+    
+    if (!_tableView) {
+        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, kNavBarHeight, self.view.frame.size.width, self.view.frame.size.height - kNavBarHeight) style:UITableViewStylePlain];
+        _tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+        [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:NSStringFromClass([UITableViewCell class])];
+        _tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
+        _tableView.separatorColor = kRGB(187, 187, 187);
+    }
+    return _tableView;
+}
+
+- (UIView *)footerView {
+    
+    if (!_footerView) {
+        _footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 140)];
+        [_footerView addSubview:self.loginBtn];
+        UIView *line = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 0.5)];
+        line.backgroundColor = kRGB(187, 187, 187);
+        [_footerView addSubview:line];
+    }
+    return _footerView;
+}
+
+- (UIButton *)loginBtn {
+    
+    if (!_loginBtn) {
+        _loginBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        _loginBtn.frame = CGRectMake(26, 100, self.view.frame.size.width - 52, 40);
+        [_loginBtn setTitle:@"立即登录" forState:normal];
+        [_loginBtn setTitleColor:kRGB(16, 16, 16) forState:normal];
+        _loginBtn.titleLabel.font = [UIFont systemFontOfSize:14.f];
+        _loginBtn.layer.borderColor = kRGB(187, 187, 187).CGColor;
+        _loginBtn.layer.borderWidth = 1.f;
+        _loginBtn.layer.cornerRadius = 4.f;
+        [_loginBtn addTarget:self action:@selector(loginBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _loginBtn;
+}
+
+- (void)loginBtnClick {
+    
+    if (!kisToken) {
+        LoginViewController *loginVC = [[LoginViewController alloc]init];
+        [self.navigationController pushViewController:loginVC animated:YES];
+    } else {
+        [MBProgressHUD bnt_indeterminateWithMessage:@"" toView:self.view];
+        kWeakSelf(self)
+        [[NetworkUtils sharedInstance] loginOutWithUtilsSuccess:^(id response) {
+            [MBProgressHUD hideHUDView:weakself.view];
+            if ([BaseTool responseWithNetworkDealResponse:response]) {
+                [self.loginBtn setTitle:@"立即登录" forState:normal];
+            } else {
+                [MBProgressHUD bnt_showMessage:response[kMessageStr] delay:kMubDelayTime];
+            }
+        } utilsFail:^(NSString *error) {
+            [MBProgressHUD hideHUDView:weakself.view];
+        }];
+    }
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.dataArr.count;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 62.f;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    
+    return 140;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 0.01;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    return [UIView new];
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    return self.footerView;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([UITableViewCell class]) forIndexPath:indexPath];
+    for (UIView *v in cell.contentView.subviews) {
+        [v removeFromSuperview];
+    }
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.textLabel.text = self.dataArr[indexPath.row];
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (!kisToken) {
+        LoginViewController *loginVC = [[LoginViewController alloc]init];
+        [self.navigationController pushViewController:loginVC animated:YES];
+    } else {
+        KeleWebToolViewController *webVC = [[KeleWebToolViewController alloc]init];
+        NSString *pathString = @"";
+        switch (indexPath.row) {
+            case 0://我的账单
+            {
+                pathString = korderHistoryHtml;
+            }
+                break;
+            case 1://我的银行卡
+            {
+                pathString = kBankCardHtml;
+            }
+                break;//相关协议
+            case 2:
+            {
+                pathString = [NSString stringWithFormat:@"%@%@",kRegisterAgreement, kAliasName];
+            }
+                break;
+            default:
+                break;
+        }
+        
+        webVC.loadUrlString = [NSString stringWithFormat:@"%@%@",kHTTPH5, pathString];
+        [self.navigationController pushViewController:webVC animated:YES];
+    }
+}
+
 -(UICollectionView *)collectionView{
     if (!_collectionView) {
         _layout = [[UICollectionViewFlowLayout alloc]init];

@@ -16,9 +16,15 @@
 #import "Home_secondView.h"
 #import "YokycleScrollView.h"
 #import "RollingView.h"
+#import "OrderDetailViewController.h"
+
+#import "RealNameViewController.h"
+#import "KelePersonViewController.h"
+#import "FaceViewController.h"
+#import "CarrierEnsureViewController.h"
 
 static NSString *cellIdentifier = @"baseCell";
-@interface HomeViewController ()<UITableViewDelegate,UITableViewDataSource,CDDRollingDelegate,YokycleScrollViewDelegate>
+@interface HomeViewController ()<UITableViewDelegate,UITableViewDataSource,CDDRollingDelegate,YokycleScrollViewDelegate,SecondProgressViewDelegate>
 @property(strong,nonatomic)UITableView *basetableview;
 @property(strong,nonatomic)UIView *headView;
 @property(strong,nonatomic)UIView *buttomView;
@@ -92,7 +98,7 @@ static NSString *cellIdentifier = @"baseCell";
                 [self.buttomView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
                 [self.buttomView addSubview:self.firstView];
                 NSMutableDictionary *dic = [NSMutableDictionary dictionary ];
-                [dic setObject:@"1000~5000" forKey:@"amount"];
+                [dic setObject:@"200~2w" forKey:@"amount"];
                 [dic setObject:@"填写身份资料即可借款" forKey:@"descTop"];
                 [dic setObject:@"立即借款" forKey:@"descMid"];
                 self.firstView.dataDic = dic;
@@ -100,21 +106,21 @@ static NSString *cellIdentifier = @"baseCell";
         } utilsFail:^(NSString *error) {
             [MBProgressHUD bnt_showError:error];
         }];
-        
-        [[NetworkUtils sharedInstance]rewordBannerAndNoticeutilSuccess:^(id response) {
-            if ([BaseTool responseWithNetworkDealResponse:response]) {
-                self.ImgNameArr = [NSArray yy_modelArrayWithClass:[Banner class] json:response[@"data"][@"banner"]];
-                self.NoticeArr = [NSArray yy_modelArrayWithClass:[Notice class] json:response[@"data"][@"notice"] ];
-                [weakself selectNotice];
-                [self headerendRefreshing];
-                
-            }else{
-                [self headerendRefreshing];
-            }
-        } utilsFail:^(NSString *error) {
-            [self headerendRefreshing];
-            [MBProgressHUD bnt_showError:error];
-        }];
+    
+//        [[NetworkUtils sharedInstance]rewordBannerAndNoticeutilSuccess:^(id response) {
+//            if ([BaseTool responseWithNetworkDealResponse:response]) {
+//                self.ImgNameArr = [NSArray yy_modelArrayWithClass:[Banner class] json:response[@"data"][@"banner"]];
+//                self.NoticeArr = [NSArray yy_modelArrayWithClass:[Notice class] json:response[@"data"][@"notice"] ];
+//                [weakself selectNotice];
+//                [self headerendRefreshing];
+//                
+//            }else{
+//                [self headerendRefreshing];
+//            }
+//        } utilsFail:^(NSString *error) {
+//            [self headerendRefreshing];
+//            [MBProgressHUD bnt_showError:error];
+//        }];
   
 
 }
@@ -149,9 +155,7 @@ static NSString *cellIdentifier = @"baseCell";
 
 -(void)selectUI:(id)response{
     [self.buttomView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-
-
-        NSInteger index = [ response[@"data"][@"orderStatus"] integerValue];
+    NSInteger index = [ response[@"data"][@"orderStatus"] integerValue];
     switch (index) {
         case 0:
         {
@@ -173,13 +177,13 @@ static NSString *cellIdentifier = @"baseCell";
             self.secondView.orderObj = [Order yy_modelWithJSON:response[@"data"]];
         }
             break;
-        case 3:{
+        case 3:{//待还款
             
             [self.buttomView addSubview:self.secondProView];
             self.secondProView.orderObj = [Order yy_modelWithJSON:response[@"data"]];
         }
             break;
-        case 4:{
+        case 4:{//已逾期
             
             [self.buttomView addSubview:self.secondProView];
             self.secondProView.orderObj = [Order yy_modelWithJSON:response[@"data"]];
@@ -204,6 +208,14 @@ static NSString *cellIdentifier = @"baseCell";
         [MBProgressHUD bnt_showError:error];
     }];
 }
+
+#pragma mark - delegate
+- (void)orderDetail:(Order *)order {
+    KeleWebToolViewController *webVC = [[KeleWebToolViewController alloc]init];
+    webVC.loadUrlString = order.url;//[NSString stringWithFormat:@"%@%@%@",kHTTPH5, kOrderDetail,order.orderId];
+    [self.navigationController pushViewController:webVC animated:YES];
+}
+
 /** UI懒加载 **/
 -(RollingView *)rollingView{
     if (!_rollingView) {
@@ -240,7 +252,7 @@ static NSString *cellIdentifier = @"baseCell";
 -(UIImageView *)bannerImgView{
     if (!_bannerImgView) {
         _bannerImgView = [[UIImageView alloc]init];
-        _bannerImgView.image = kImageName(@"banner");
+        _bannerImgView.image = kImageName(@"banner.jpeg");
         _bannerImgView.hidden = NO;
     }
     return _bannerImgView;
@@ -264,10 +276,50 @@ static NSString *cellIdentifier = @"baseCell";
     return _firstView;
 }
 -(void)firstViewClick:(NSString *)url{
+    kWeakSelf(self);
     if (kisToken) {
-        KeleWebToolViewController *firstVC = [[KeleWebToolViewController alloc]init];
-        firstVC.loadUrlString = url;
-        [self.navigationController pushViewController:firstVC animated:YES];
+        [[NetworkUtils sharedInstance] getUserStatusWithUtilsSuccess:^(id response) {
+            
+            if ([BaseTool responseWithNetworkDealResponse:response]) {
+                NSDictionary *result = response[@"data"];
+                if (!result[@"realName"] || ([result[@"realName"] integerValue] != 2 && [result[@"realName"] integerValue] != 1)) {
+                    RealNameViewController *realNameVC = [RealNameViewController new];
+                    [weakself.navigationController pushViewController:realNameVC animated:YES];
+                    return ;
+                }
+                
+                if (!result[@"userDetails"] || ([result[@"userDetails"] integerValue] != 2 && [result[@"userDetails"] integerValue] != 1)) {
+                    KelePersonViewController *personVC = [KelePersonViewController new];
+                    [weakself.navigationController pushViewController:personVC animated:YES];
+                    return ;
+                }
+                
+                if (!result[@"liveness"] || ([result[@"liveness"] integerValue] != 2 && [result[@"liveness"] integerValue] != 1)) {
+                    FaceViewController *faceVC = [FaceViewController new];
+                    [weakself.navigationController pushViewController:faceVC animated:YES];
+                    return ;
+                }
+                
+                if (!result[@"mobile"] || ([result[@"mobile"] integerValue] != 2 && [result[@"mobile"] integerValue] != 1)) {
+                    CarrierEnsureViewController *carrierEnsureVC = [CarrierEnsureViewController new];
+                    [weakself.navigationController pushViewController:carrierEnsureVC animated:YES];
+                    return ;
+                }
+                if (!result[@"bindbank"] || ([result[@"bindbank"] integerValue] != 2 && [result[@"bindbank"] integerValue] != 1)) {
+                    
+                    KeleWebToolViewController *firstVC = [[KeleWebToolViewController alloc]init];
+                    firstVC.loadUrlString = [NSString stringWithFormat:@"%@%@", kHTTPH5, kBindBank];;
+                    [weakself.navigationController pushViewController:firstVC animated:YES];
+                    return;
+                }
+                KeleWebToolViewController *firstVC = [[KeleWebToolViewController alloc]init];
+                firstVC.loadUrlString = url;
+                [weakself.navigationController pushViewController:firstVC animated:YES];
+                
+            }
+        } utilsFail:^(NSString *error) {
+            
+        }];
     }else{
         LoginViewController *loginVC = [[LoginViewController alloc]init];
         [self.navigationController pushViewController:loginVC animated:YES];
@@ -303,6 +355,7 @@ static NSString *cellIdentifier = @"baseCell";
     if (!_secondProView) {
         kWeakSelf(self);
         _secondProView = [[secondprogressView alloc]initWithFrame:CGRectMake(0, 0, self.buttomView.frame.size.width, self.buttomView.frame.size.height-10)];
+        _secondProView.delegate = self;
         _secondProView.repayBack = ^(NSString *url) {
             [weakself setondClick:url];
         };
@@ -355,7 +408,7 @@ static NSString *cellIdentifier = @"baseCell";
         _basetableview.showsVerticalScrollIndicator = NO;
         _basetableview.separatorStyle = UITableViewCellSeparatorStyleNone;
         _basetableview.backgroundColor = kRGB(240, 240, 240);
-        self.isHeaderRefresh =YES;
+        //self.isHeaderRefresh =YES;
     }
     return _basetableview;
 }

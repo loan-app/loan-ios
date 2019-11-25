@@ -9,15 +9,53 @@
 #import "secondprogressView.h"
 #import "secondCell.h"
 static NSString *secondCellId = @"sceondcell";
+
+@interface secondprogressView ()
+
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UILabel *dateLabel;
+@property (nonatomic, strong) UILabel *moneyLabel;
+@property (nonatomic, strong) UIButton *detailButton;
+
+@end
+
 @implementation secondprogressView
 
 -(instancetype)initWithFrame:(CGRect)frame{
     if (self = [super initWithFrame:frame]) {
-        self.backgroundColor = kRGB(240, 240, 240);
-        [self test];
-        [self addSubview:self.tableview];
-        [self addSubview:self.confirmBtn];
-
+        self.backgroundColor = [UIColor whiteColor];
+        [self addSubview:self.titleLabel];
+        [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(7);
+            make.leading.mas_equalTo(15);
+        }];
+        [self addSubview:self.dateLabel];
+        [self.dateLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.trailing.mas_equalTo(-16);
+            make.top.mas_equalTo(5);
+        }];
+        [self addSubview:self.moneyLabel];
+        [self.moneyLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.leading.mas_equalTo(self.titleLabel);
+            make.top.mas_equalTo(self.titleLabel.mas_bottom).with.offset(12);
+        }];
+        [self addSubview:self.detailButton];
+        [self.detailButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.trailing.mas_equalTo(self.dateLabel);
+            make.top.mas_equalTo(self.dateLabel.mas_bottom).with.offset(19);
+            make.width.mas_equalTo(131);
+            make.height.mas_equalTo(35);
+        }];
+        
+        UIView *line = [UIView new];
+        line.backgroundColor = kRGB(187, 187, 187);
+        [self addSubview:line];
+        [line mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.leading.trailing.mas_equalTo(0);
+            make.top.mas_equalTo(self.moneyLabel.mas_bottom).with.offset(35);
+            make.height.mas_equalTo(1);
+        }];
+        
     }
     return self;
 }
@@ -34,12 +72,19 @@ static NSString *secondCellId = @"sceondcell";
     return _detailArr;
 }
 -(void)setOrderObj:(Order *)orderObj{
+    NSMutableAttributedString *attStr;
     if (orderObj) {
         _orderObj = orderObj;
         if ([orderObj.orderStatus integerValue] ==3) {
             self.titleArr = @[@"待还款",@"最迟还款日",@"距离还款日还剩"];
+            NSString *tempStr = [NSString stringWithFormat:@"距离还款日还剩%@天",orderObj.remainDays];
+            attStr = [[NSMutableAttributedString alloc] initWithString:tempStr];
+            [attStr addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:NSMakeRange(7, [NSString stringWithFormat:@"%@",orderObj.remainDays].length)];
         }else if ([orderObj.orderStatus integerValue] ==4){
             self.titleArr = @[@"待还款",@"最迟还款日",@"您已逾期"];
+            NSString *tempStr = [NSString stringWithFormat:@"您已逾期%@天",orderObj.remainDays];
+            attStr = [[NSMutableAttributedString alloc] initWithString:tempStr];
+            [attStr addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:NSMakeRange(4, [NSString stringWithFormat:@"%@",orderObj.remainDays].length)];
         }
         NSString *sday =[NSString stringWithFormat:@"%@", orderObj.shouldRepay];
         NSString *rday =[NSString stringWithFormat:@"%@", orderObj.remainDays];
@@ -47,19 +92,13 @@ static NSString *secondCellId = @"sceondcell";
 
         if (isValidStr(sday) && isValidStr(rday) && isValidStr(lday)) {
             self.detailArr = @[[NSString stringWithFormat:@"%@", orderObj.shouldRepay],orderObj.lastRepayTime,[NSString stringWithFormat:@"%@", orderObj.remainDays]];
-            [self.tableview reloadData];
+            self.moneyLabel.text = [NSString stringWithFormat:@"￥%@",orderObj.shouldRepay];
+            self.dateLabel.attributedText = attStr;
         }else{
             NSLog(@"======== nil");
         }
     }
 }
-//-(UIView *)backView{
-//    if (!_backView) {
-//        _backView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, 180)];
-//        _backView addSubview:se
-//    }
-//    return _backView;
-//}
 -(UITableView *)tableview{
     if (!_tableview) {
         _tableview = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, 220) style:UITableViewStylePlain];
@@ -112,28 +151,58 @@ static NSString *secondCellId = @"sceondcell";
         self.repayBack(_orderObj.url);
     }
 }
--(void)test{
-    UIBezierPath * path = [UIBezierPath bezierPath];
+
+- (UILabel *)titleLabel {
     
-    [path moveToPoint:CGPointMake(-1, 220)];//开始点
-    
-    [path addQuadCurveToPoint:CGPointMake(kWidth+1, 220) controlPoint:CGPointMake(kWidth/2, 220+100)];
-    
-    path.lineWidth = 2.0;
-    path.lineCapStyle = kCGLineCapRound; //线条拐角
-    path.lineJoinStyle = kCGLineCapRound; //终点处理
-    
-    CAShapeLayer *layer = [CAShapeLayer layer];
-    
-    layer.path = path.CGPath;
-    layer.fillColor = [UIColor whiteColor].CGColor;
-    layer.strokeColor = [UIColor clearColor].CGColor;
-    layer.shadowColor = [UIColor grayColor].CGColor;
-    layer.shadowOpacity = 0.2;
-    layer.shadowOffset = CGSizeMake(0, 5);
-    [self.layer addSublayer:layer];
-    
+    if (!_titleLabel) {
+        _titleLabel = [UILabel new];
+        _titleLabel.font = [UIFont systemFontOfSize:14.f];
+        _titleLabel.textColor = kRGB(16, 16, 16);
+        _titleLabel.text = @"本期应还（元）";
+    }
+    return _titleLabel;
 }
+
+- (UILabel *)dateLabel {
+    
+    if (!_dateLabel) {
+        _dateLabel = [UILabel new];
+        _dateLabel.font = [UIFont systemFontOfSize:14.f];
+        _dateLabel.textColor = kRGB(16, 16, 16);
+    }
+    return _dateLabel;
+}
+
+- (UILabel *)moneyLabel {
+    
+    if (!_moneyLabel) {
+        _moneyLabel = [UILabel new];
+        _moneyLabel.font = [UIFont boldSystemFontOfSize:18.f];
+        _moneyLabel.textColor = kRGB(16, 16, 16);
+    }
+    return _moneyLabel;
+}
+
+- (UIButton *)detailButton {
+    if (!_detailButton) {
+        _detailButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_detailButton setTitle:@"查看详情" forState:normal];
+        [_detailButton setTitleColor:kRGB(16, 16, 16) forState:normal];
+        _detailButton.titleLabel.font = [UIFont systemFontOfSize:14];
+        _detailButton.layer.cornerRadius = 4;
+        _detailButton.layer.borderColor = kRGB(187, 187, 187).CGColor;
+        _detailButton.layer.borderWidth = 1.f;
+        [_detailButton addTarget:self action:@selector(detailButtonClick) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _detailButton;
+}
+
+- (void)detailButtonClick {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(orderDetail:)]) {
+        [self.delegate orderDetail:self.orderObj];
+    }
+}
+
 @end
 
 

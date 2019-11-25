@@ -11,13 +11,13 @@
 
 #ifdef DEBUG
 //测试环境
-#define kHTTPUrl @""
-#define kHTTPH5 @""
+#define kHTTPUrl @"http://47.111.176.27:10002"
+#define kHTTPH5 @"http://h5.360dp.top"
 #define kMoxieApiKey @""
 #else
 //正式环境
-#define kHTTPUrl @""
-#define kHTTPH5 @""
+#define kHTTPUrl @"http://47.111.176.27:10002"
+#define kHTTPH5 @"http://h5.360dp.top"
 #define kMoxieApiKey @""
 #endif
 #endif /* BaseNetWorkMacros_h */

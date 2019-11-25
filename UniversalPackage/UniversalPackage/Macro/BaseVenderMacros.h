@@ -13,24 +13,24 @@
  */
 
 //别名
-#define kAliasName @"tuzi"
+#define kAliasName @"test"
 
 /** 网络返回值
  */
 #define kStatusCode @"status"
-#define kMessageStr @"message"
+#define kMessageStr @"msg"
 
 /** 短信验证码标识
  */
-#define ksms_type_Regist @"1001"
-#define ksms_type_ChangePassword @"1002"
+#define ksms_type_Regist @"001"
+#define ksms_type_ChangePassword @"002"
 
 
 /** OCR(百度秘钥)
  */
 
-#define kApiKey @""
-#define kSecretKey @""
+#define kApiKey @"9DWZcwG6ZtgEtsgMTGaZjngf"
+#define kSecretKey @"f9W9UiWmNwiUf4e7pSAR20xFrdGES2ty"
 
 
 

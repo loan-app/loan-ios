@@ -30,7 +30,7 @@
 //意见反馈
 #define kFeedbackUrl @"/user/feedback"
 //上传图片
-#define kUploadUrl @"/upload"
+#define kUploadUrl @"/file/upload"
 //获取个人信息
 #define kRewordPersonInfoUrl @"/user/person"
 //当前订单进度
@@ -59,11 +59,11 @@
 //用户认证中心
 #define kcenterHtml @"/user/cert_center.html"
 //用户银行卡
-#define kBankCardHtml @"/user/bank_card.html"
+#define kBankCardHtml @"/user/bank_card"
 //帮助中心
 #define kHelpCenterHtml @"/help_center.html"
 //订单记录
-#define korderHistoryHtml @"/order/store_order_history.html"
+#define korderHistoryHtml @"/order/store_order_history"
 //发现
 #define kFinderHtml @"/find.html"
 //首页估价
@@ -79,10 +79,18 @@
 #define kuploadAllContactUrl @"/user/address_list"
 //客户端升级
 #define kversionUrl @"/check_version"
-
-
-
-
+//用户认证状态
+#define kUserStatus @"/user_ident_info"
+//申请额度
+#define kApplyOrder @"/order/store_order_apply"
+//订单详情
+#define kOrderDetail @"/order/store_order_detail?orderId="
+//app里的注册协议
+#define kRegisterAgreement @"/agreement/register?alias="
+//注册页的注册服务协议
+#define kRegisterServiceAgreement @"/agreement/registar"
+#define kMobileAuth @"/user/pullUserMobileAuth"
+#define kBindBank @"/user/bank_card_bind"
 
 
 #endif /* BaseUrlMacros_h */
